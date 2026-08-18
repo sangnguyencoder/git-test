@@ -1,0 +1,653 @@
+PROJECT THỰC HÀNH
+QUẢN TRỊ MÃ NGUỒN VỚI GIT, GITHUB VÀ CI/CD
+
+1. MỤC TIÊU
+- Khởi tạo và quản lý Git repository.
+- Thực hiện status, add, commit, log.
+- Kết nối repository local với GitHub.
+- Sử dụng branch để phát triển chức năng.
+- Push code, tạo Pull Request và code review.
+- Merge branch và xử lý merge conflict cơ bản.
+- Tạo GitHub Actions workflow.
+- Tự động chạy unit test bằng CI.
+- Đọc log và xử lý khi CI thất bại.
+
+2. PROJECT
+Tên: Student Management
+
+Xây dựng ứng dụng đơn giản để:
+- Hiển thị danh sách sinh viên.
+- Tìm sinh viên theo ID.
+- Tìm kiếm sinh viên theo tên.
+- Có unit test.
+- Có GitHub Actions tự động chạy test.
+
+Quy trình:
+Code -> Git -> Commit -> Feature Branch -> Push -> Pull Request
+-> Code Review -> Merge -> GitHub Actions -> Automated Test
+
+3. CẤU TRÚC PROJECT
+
+student-management/
+├── app.py
+├── students.json
+├── requirements.txt
+├── README.md
+├── .gitignore
+├── tests/
+│   └── test_app.py
+└── .github/
+    └── workflows/
+        └── ci.yml
+
+4. CHUẨN BỊ
+
+Cần có:
+- Git
+- Python 3.x
+- Tài khoản GitHub
+- VS Code hoặc trình soạn thảo tương đương
+
+Kiểm tra:
+git --version
+python --version
+
+5. BƯỚC 1 - TẠO PROJECT
+
+mkdir student-management
+cd student-management
+
+6. BƯỚC 2 - TẠO ỨNG DỤNG
+
+Tạo app.py:
+
+students = [
+    {"id": 1, "name": "Nguyen Van A", "email": "a@example.com"},
+    {"id": 2, "name": "Tran Thi B", "email": "b@example.com"}
+]
+
+def get_students():
+    return students
+
+def get_student(student_id):
+    for student in students:
+        if student["id"] == student_id:
+            return student
+    return None
+
+if __name__ == "__main__":
+    print(get_students())
+
+Chạy:
+python app.py
+
+7. BƯỚC 3 - CẤU HÌNH GIT
+
+git config --global user.name "TEN_SINH_VIEN"
+git config --global user.email "EMAIL_GITHUB"
+git config --global --list
+
+8. BƯỚC 4 - KHỞI TẠO REPOSITORY
+
+git init
+git status
+
+9. BƯỚC 5 - COMMIT ĐẦU TIÊN
+
+git add app.py
+git status
+git commit -m "Initial commit"
+git log --oneline
+
+Commit message phải mô tả rõ thay đổi.
+Không dùng: update, test, abc, final, final2.
+
+10. BƯỚC 6 - TẠO .gitignore
+
+Tạo .gitignore:
+
+__pycache__/
+*.pyc
+.env
+.vscode/
+.idea/
+
+Commit:
+
+git add .gitignore
+git commit -m "Add gitignore"
+
+Không commit password, API key, token hoặc .env chứa thông tin bí mật.
+
+11. BƯỚC 7 - TẠO README
+
+Tạo README.md:
+
+# Student Management
+
+## Description
+Simple student management application.
+
+## Features
+- List students
+- Find student by ID
+
+## Run
+python app.py
+
+Commit:
+
+git add README.md
+git commit -m "Add project README"
+
+Yêu cầu: ít nhất 3 commit có nội dung rõ ràng.
+
+12. BƯỚC 8 - GITHUB
+
+Tạo repository trên GitHub:
+student-management
+
+Kết nối:
+
+git remote add origin https://github.com/USERNAME/student-management.git
+git remote -v
+git branch -M main
+git push -u origin main
+
+Kiểm tra source code trên GitHub.
+
+13. BƯỚC 9 - FEATURE BRANCH
+
+Không phát triển trực tiếp trên main.
+
+git switch -c feature/add-search
+git branch
+
+14. BƯỚC 10 - THÊM CHỨC NĂNG TÌM KIẾM
+
+Thêm vào app.py:
+
+def search_students(keyword):
+    result = []
+    for student in students:
+        if keyword.lower() in student["name"].lower():
+            result.append(student)
+    return result
+
+Kiểm tra:
+
+print(search_students("Nguyen"))
+
+Commit:
+
+git status
+git add app.py
+git commit -m "Add student search feature"
+
+15. BƯỚC 11 - PUSH FEATURE BRANCH
+
+git push -u origin feature/add-search
+
+16. BƯỚC 12 - PULL REQUEST
+
+Trên GitHub tạo Pull Request:
+
+feature/add-search -> main
+
+Title:
+Add student search feature
+
+Description:
+- Add search_students()
+- Search student by name
+- Tested locally
+
+Không merge ngay. Chờ thành viên khác review.
+
+17. BƯỚC 13 - CODE REVIEW
+
+Reviewer kiểm tra:
+[ ] Code chạy được.
+[ ] Tên function rõ ràng.
+[ ] Có test.
+[ ] Commit message hợp lý.
+[ ] Không có file không cần thiết.
+[ ] Đáp ứng yêu cầu.
+
+Nếu reviewer yêu cầu sửa, sửa trên feature branch, commit và push lại.
+
+18. BƯỚC 14 - UNIT TEST
+
+Tạo:
+tests/test_app.py
+
+Test tối thiểu:
+- Tìm thấy sinh viên.
+- Không tìm thấy sinh viên.
+- Tìm kiếm không phân biệt hoa/thường.
+
+Sau khi sửa:
+
+git add .
+git commit -m "Add search student test"
+git push
+
+19. BƯỚC 15 - MERGE
+
+Method 1 — Merge using GitHub Pull Request ⭐ Recommended
+
+This is the best workflow for students and teams.
+
+Step 1: Start from main
+git checkout main
+git pull origin main
+Step 2: Create a new branch
+
+For example:
+
+git checkout -b feature/login
+
+Check:
+
+git branch
+
+You should see:
+
+* feature/login
+  main
+Step 3: Modify the code
+
+For example:
+
+echo "Login feature" >> login.txt
+
+Then:
+
+git status
+Step 4: Commit
+git add .
+git commit -m "Add login feature"
+Step 5: Push the branch
+git push -u origin feature/login
+
+Now your branch exists on GitHub:
+
+main
+feature/login
+Step 6: Create Pull Request on GitHub
+
+Go to your repository:
+
+GitHub repository
+
+GitHub will usually show:
+
+Compare & pull request
+
+Click it.
+
+You should see:
+
+base: main
+compare: feature/login
+
+This means:
+
+Merge feature/login INTO main
+
+Add a title:
+
+Add login feature
+
+Description:
+
+This PR adds the login functionality.
+
+Then click:
+
+Create pull request
+Step 7: Review the code
+
+GitHub will show the changes:
+
+main
+   ↑
+   │ Pull Request
+   │
+feature/login
+
+A teammate can review the changes and comment on the code.
+
+If everything is OK:
+
+Merge pull request
+
+Then:
+
+Confirm merge
+
+Now:
+
+feature/login
+       ↓
+     MERGE
+       ↓
+      main
+Step 8: Update your local main
+
+After merging on GitHub:
+
+git checkout main
+git pull origin main
+
+Now your local main contains the feature
+
+
+20. BƯỚC 16 - GITHUB ACTIONS
+
+Tạo:
+.github/workflows/ci.yml
+
+Nội dung:
+
+name: learn-github-actions
+
+run-name: ${{ github.actor }} is learning GitHub Actions
+
+on:
+  push:
+
+jobs:
+  check-bats-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Bats
+        run: npm install -g bats
+
+      - name: Check Bats version
+        run: bats -v
+  # Check app
+Commit và push:
+
+git add .
+git commit -m "Add GitHub Actions CI"
+git push
+
+21. BƯỚC 17 - KIỂM TRA CI
+
+GitHub -> Repository -> Actions -> Student Management CI
+
+Quan sát:
+- Checkout source code
+- Setup Python
+- Install dependencies
+- Run tests
+
+Nếu thành công: CI PASSED.
+Nếu thất bại: CI FAILED.
+
+Sinh viên phải đọc log để tìm step lỗi.
+
+22. BƯỚC 18 - CỐ TÌNH TẠO CI FAILURE
+
+Thay một test thành sai, ví dụ:
+
+assert len(result) == 100
+
+Commit:
+
+git add .
+git commit -m "Test CI failure"
+git push
+
+Trả lời:
+1. CI thất bại ở step nào?
+2. Nguyên nhân là gì?
+3. Log cho biết gì?
+4. Cần sửa file nào?
+5. Sau khi sửa CI có PASS không?
+
+Sau đó sửa test và push lại:
+
+git add .
+git commit -m "Fix failing test"
+git push
+
+23. BƯỚC 19 - MERGE CONFLICT
+
+Hai sinh viên có thể cùng sửa một vùng app.py trên hai branch.
+
+Khi conflict xuất hiện:
+
+<<<<<<< HEAD
+code A
+=======
+code B
+>>>>>>> feature/xxx
+
+Thực hiện:
+1. Đọc hai phần code.
+2. Quyết định nội dung cần giữ.
+3. Xóa marker conflict.
+4. Chạy test.
+5. git add .
+6. Commit.
+
+Ví dụ:
+
+git add app.py
+git commit -m "Resolve merge conflict"
+
+24. PROJECT NHÓM
+
+Nhóm 3-4 sinh viên.
+
+SV1:
+Branch: feature/add-student
+Chức năng: Thêm sinh viên
+
+SV2:
+Branch: feature/delete-student
+Chức năng: Xóa sinh viên
+
+SV3:
+Branch: feature/search-student
+Chức năng: Tìm kiếm sinh viên
+
+SV4:
+Branch: feature/update-student
+Chức năng: Cập nhật sinh viên
+
+Mỗi thành viên bắt buộc:
+1. Tạo feature branch.
+2. Viết code.
+3. Commit.
+4. Push.
+5. Tạo Pull Request.
+6. Review PR của thành viên khác.
+7. Sửa code nếu cần.
+8. Merge vào main.
+
+KHÔNG phát triển trực tiếp trên main.
+
+25. BÀI TẬP NÂNG CAO
+
+- Thêm chức năng thêm sinh viên.
+- Thêm xóa sinh viên.
+- Thêm cập nhật sinh viên.
+- Bổ sung unit test.
+- Cố tình tạo và xử lý merge conflict.
+- Cố tình làm CI fail rồi sửa.
+- Thêm lint nếu giảng viên yêu cầu.
+- Thiết kế quy ước commit cho nhóm.
+- Tạo tag v1.0.0.
+- Hoàn thiện README.
+
+26. CHECKLIST TRƯỚC KHI NỘP
+
+Git:
+[ ] Repository GitHub.
+[ ] main branch.
+[ ] Feature branch.
+[ ] Ít nhất 3 commit có ý nghĩa.
+[ ] Commit message rõ ràng.
+[ ] Không commit secret.
+
+GitHub:
+[ ] Pull Request.
+[ ] Code Review.
+[ ] PR đã merge.
+[ ] main chạy được.
+
+Testing:
+[ ] Có unit test.
+[ ] Test local thành công.
+[ ] GitHub Actions thành công.
+
+CI:
+[ ] Có .github/workflows/ci.yml.
+[ ] Trigger push.
+[ ] Trigger pull_request.
+[ ] Checkout source.
+[ ] Setup môi trường.
+[ ] Install dependency.
+[ ] Run test.
+
+Documentation:
+[ ] README.md.
+[ ] Hướng dẫn chạy.
+[ ] Mô tả chức năng.
+[ ] Hướng dẫn test.
+
+27. SẢN PHẨM CẦN NỘP
+
+1. Link GitHub repository.
+2. Source code.
+3. README.md.
+4. Unit tests.
+5. GitHub Actions workflow.
+6. Danh sách Pull Request.
+7. Git history.
+8. Báo cáo ngắn:
+   - Thành viên nhóm.
+   - Chức năng từng thành viên.
+   - Branch sử dụng.
+   - Pull Request.
+   - Kết quả CI.
+   - Khó khăn và cách xử lý.
+
+28. RUBRIC
+
+Git repository:             10 điểm
+Commit & Git history:       15 điểm
+Branch:                     15 điểm
+Pull Request + Review:      15 điểm
+Ứng dụng:                   15 điểm
+Unit Test:                  10 điểm
+GitHub Actions:             15 điểm
+README + Demo:               5 điểm
+
+TỔNG:                      100 điểm
+
+29. QUY TRÌNH CẦN NHỚ
+
+Tạo/sửa code
+     |
+     v
+git status
+     |
+     v
+git add .
+     |
+     v
+git commit -m "message"
+     |
+     v
+git push
+     |
+     v
+Pull Request
+     |
+     v
+Code Review
+     |
+     v
+Merge
+     |
+     v
+GitHub Actions
+     |
+     v
+Automated Test
+     |
+     v
+PASS / FAIL
+
+30. CÂU HỎI TỰ KIỂM TRA
+
+1. Git khác GitHub như thế nào?
+2. Working Directory là gì?
+3. Staging Area là gì?
+4. Repository là gì?
+5. git add dùng để làm gì?
+6. git commit dùng để làm gì?
+7. Branch có tác dụng gì?
+8. Vì sao không nên phát triển trực tiếp trên main?
+9. Pull Request dùng để làm gì?
+10. Code Review có vai trò gì?
+11. Merge conflict xảy ra khi nào?
+12. git pull khác git fetch như thế nào?
+13. CI là gì?
+14. GitHub Actions dùng để làm gì?
+15. Workflow, job và step khác nhau như thế nào?
+16. Khi CI FAILED cần làm gì?
+17. Vì sao không được đưa password/API key vào repository?
+
+31. DEMO CUỐI PROJECT
+
+Mỗi nhóm phải demo:
+1. GitHub repository.
+2. Cấu trúc project.
+3. Commit history.
+4. Feature branches.
+5. Pull Request.
+6. Code Review.
+7. Merge.
+8. GitHub Actions.
+9. Kết quả CI.
+10. Một trường hợp CI failure và cách xử lý.
+11. Một merge conflict và cách xử lý.
+
+Mỗi thành viên phải giải thích được phần mình đã thực hiện.
+
+32. KẾT QUẢ CUỐI CÙNG
+
+Sinh viên cần hiểu quy trình:
+
+Làm việc cá nhân
+      ->
+Quản lý phiên bản
+      ->
+Làm việc nhóm
+      ->
+Code Review
+      ->
+Tích hợp mã nguồn
+      ->
+Kiểm thử tự động
+      ->
+CI/CD
+
+Mục tiêu của project không phải chỉ nhớ các lệnh Git mà phải hiểu được
+quy trình quản lý mã nguồn và tích hợp/kiểm thử tự động trong một project
+phần mềm.
+
